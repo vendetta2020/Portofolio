@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Pixelify_Sans, Press_Start_2P, Silkscreen, JetBrains_Mono } from "next/font/google";
 import { CRTOverlay } from "@/components/crt-overlay";
+import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
 const pixelifySans = Pixelify_Sans({
@@ -30,8 +31,22 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Afif Fakhriyadh Asri — Backend & Fullstack Engineer",
+  metadataBase: new URL(siteConfig.url),
+  title: siteConfig.title,
   description: "Portofolio arsitektur backend, sistem kasir transaksi tinggi, dan modular payment gateway dengan tema 16-Bit Sunset Arcade.",
+  openGraph: {
+    title: siteConfig.title,
+    description: "Portofolio arsitektur backend, sistem kasir transaksi tinggi, dan modular payment gateway dengan tema 16-Bit Sunset Arcade.",
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    locale: "id_ID",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.title,
+    description: "Portofolio arsitektur backend, sistem kasir transaksi tinggi, dan modular payment gateway dengan tema 16-Bit Sunset Arcade.",
+  },
 };
 
 export default function RootLayout({

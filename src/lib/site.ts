@@ -1,6 +1,7 @@
 export const siteConfig = {
   name: "Afif Fakhriyadh Asri",
   title: "Afif Fakhriyadh Asri — Backend & Fullstack Engineer",
+  url: "https://afif-dev.vercel.app",
   role: "Backend & Fullstack Engineer",
   tagline:
     "Engineering fault-tolerant transaction systems, pessimistic concurrency control, and mathematically idempotent financial rails.",
