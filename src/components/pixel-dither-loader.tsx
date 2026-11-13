@@ -85,9 +85,9 @@ export function PixelDitherLoader() {
       const jitter = ((idx * 7919) % 100) / 100 - 0.5;
       const angle = baseAngle + jitter * 0.75;
 
-      // Distance-weighted flight distance (650px to 1600px across full screen)
-      const baseDist = 650 + ((idx * 104729) % 950);
-      const targetDist = baseDist * (0.85 + (dist / 32) * 0.5);
+      // Distance-weighted flight distance across full viewport (800px to 2200px)
+      const baseDist = 800 + ((idx * 104729) % 1200);
+      const targetDist = baseDist * (0.9 + (dist / 32) * 0.6);
 
       return {
         dx: Math.cos(angle) * targetDist,
@@ -280,22 +280,24 @@ export function PixelDitherLoader() {
       </header>
 
       {/* 
-        CENTER CANVAS AREA
-        Progressive Pixel Dither Portrait
+        FULL-VIEWPORT CANVAS LAYER
+        Covers the entire 100vw x 100vh screen with NO box clipping boundary!
+        Particles explode seamlessly across the full viewport past header and footer.
       */}
-      <main className="relative z-10 flex-1 w-full h-full flex items-center justify-center p-2 sm:p-4">
-        <canvas
-          ref={canvasRef}
-          className="w-full h-full max-w-4xl max-h-[75vh] block mx-auto pointer-events-none drop-shadow-[0_0_12px_rgba(250,204,21,0.2)]"
-          style={{ imageRendering: "pixelated" }}
-        />
-      </main>
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full block pointer-events-none drop-shadow-[0_0_12px_rgba(250,204,21,0.2)]"
+        style={{ imageRendering: "pixelated" }}
+      />
+
+      {/* Center Spacer to keep layout balanced */}
+      <div className="flex-1 pointer-events-none" />
 
       {/* 
         BOTTOM FOOTER BAR
         Minimal percentage counter in the bottom-left corner (like Hulusi Tunç)
       */}
-      <footer className="relative z-10 flex items-end justify-between px-4 sm:px-8 md:px-12 pl-14 sm:pl-8 pb-5 sm:pb-8 border-t border-[#261545] pt-4">
+      <footer className="relative z-10 flex items-end justify-between px-4 sm:px-8 md:px-12 pl-14 sm:pl-8 pb-5 sm:pb-8 border-t border-[#261545] pt-4 pointer-events-none">
         {/* Big Minimalist Percentage Counter */}
         <div className="flex flex-col">
           <div className="flex items-baseline gap-1">
@@ -318,7 +320,7 @@ export function PixelDitherLoader() {
         </div>
 
         {/* Skip Affordance */}
-        <div className="text-[9.5px] sm:text-[11px] font-bold text-[#64748B] hover:text-[#FACC15] uppercase tracking-wider transition-colors pb-1">
+        <div className="pointer-events-auto text-[9.5px] sm:text-[11px] font-bold text-[#64748B] hover:text-[#FACC15] uppercase tracking-wider transition-colors pb-1">
           [TAP / ESC TO SKIP]
         </div>
       </footer>
