@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-/* Zero-FOUC BIOS Bootloader guard for returning visitors */
+/* Zero-FOUC Bootloader guard for returning visitors */
+html.dither-skip #dither-boot-overlay,
 html.bios-skip #bios-boot-overlay {
   display: none !important;
 }

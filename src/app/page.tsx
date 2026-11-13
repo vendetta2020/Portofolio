@@ -4,14 +4,14 @@ import { PixelHero } from "@/components/pixel-hero";
 import { HeroDiagram } from "@/components/hero-diagram";
 import { HorizontalKarya } from "@/components/horizontal-karya";
 import { Footer } from "@/components/footer";
-import { BiosBootLoader } from "@/components/bios-boot-loader";
+import { PixelDitherLoader } from "@/components/pixel-dither-loader";
 import { projects } from "@/lib/projects";
 
 export default function Home() {
   return (
     <div className="relative min-h-screen w-full flex flex-col bg-transparent">
-      {/* 16-Bit BIOS POST Hardware Bootloader (First visit per session) */}
-      <BiosBootLoader />
+      {/* 1-Bit Pixel Dither Avatar Loader (Inspired by Hulusi Tunç) */}
+      <PixelDitherLoader />
 
       {/* Global Background Sunset Pixel Sky Layer */}
       <BackgroundLayer />

@@ -8,6 +8,7 @@ export { PixelMascot } from "./pixel-mascot";
 export { PixelDialogBox } from "./pixel-dialog-box";
 export { BlueprintLoader } from "./blueprint-loader";
 export { BiosBootLoader } from "./bios-boot-loader";
+export { PixelDitherLoader } from "./pixel-dither-loader";
 export { Navbar } from "./navbar";
 export { HeroDiagram } from "./hero-diagram";
 export { ProjectCard } from "./project-card";

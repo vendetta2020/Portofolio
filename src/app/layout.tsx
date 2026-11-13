@@ -56,10 +56,11 @@ export default function RootLayout({
                   var isDev = ${isDev ? "true" : "false"};
                   var forceReplay = window.location.search.indexOf("boot=1") !== -1;
                   var forceSkip = window.location.search.indexOf("noboot=1") !== -1;
-                  var hasBooted = sessionStorage.getItem("afif_bios_booted");
+                  var hasBooted = sessionStorage.getItem("afif_dither_booted") || sessionStorage.getItem("afif_bios_booted");
                   var prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
                   
                   if (forceSkip || prefersReducedMotion || (!isDev && hasBooted && !forceReplay)) {
+                    document.documentElement.classList.add("dither-skip");
                     document.documentElement.classList.add("bios-skip");
                   }
                 } catch(e) {}
