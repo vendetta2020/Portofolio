@@ -60,8 +60,8 @@ export function PixelDitherLoader() {
     ctx.imageSmoothingEnabled = false;
 
     const points: DitherPoint[] = avatarPoints as DitherPoint[];
-    const gridW = 56;
-    const gridH = 68;
+    const gridW = 72;
+    const gridH = 82;
 
     let animFrameId: number;
     let startTime: number | null = null;
@@ -138,8 +138,10 @@ export function PixelDitherLoader() {
 
       // Calculate cell scale to center the portrait gracefully
       const isMobile = displayW < 640;
-      const cell = isMobile ? Math.floor(Math.min(displayW / 70, 4.4)) : 5.4;
-      const dot = Math.max(2.2, cell - 1.2);
+      const cell = isMobile
+        ? Math.max(3.2, Math.floor(Math.min((displayW - 32) / gridW, 4.4)))
+        : Math.min(5.4, Math.max(4.0, Math.floor((displayH * 0.65) / gridH)));
+      const dot = Math.max(2.2, cell - 1.1);
 
       const portraitW = gridW * cell;
       const portraitH = gridH * cell;
