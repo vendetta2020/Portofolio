@@ -66,14 +66,28 @@ export function PixelDitherLoader() {
     let animFrameId: number;
     let startTime: number | null = null;
     const totalDuration = 2400; // 2.4s to reach 100%
-    const holdDuration = 450; // 450ms hold at 100%
+    const holdDuration = 320; // 320ms hold at 100% before explosive detonation
     let hasPlayedChime = false;
 
-    // Scatter physics state
+    // Radial explosive scatter physics state
     let scatterStartTime: number | null = null;
-    const velocities = points.map((_, idx) => {
-      const angle = (idx * 0.31 + idx * idx * 0.007) % (Math.PI * 2);
-      const speed = 25 + (idx % 35) * 2;
+    const centerX = gridW / 2;
+    const centerY = gridH / 2;
+
+    const velocities = points.map((pt, idx) => {
+      const dx = pt.x - centerX;
+      const dy = pt.y - centerY;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      const baseAngle = Math.atan2(dy, dx);
+
+      // Organic spread jitter (+/- 0.35 rad)
+      const jitter = ((idx * 7919) % 100) / 100 - 0.5;
+      const angle = baseAngle + jitter * 0.75;
+
+      // High-velocity explosion speed in px/sec: 500 to 1400 px/sec across viewport
+      const baseSpeed = 500 + ((idx * 104729) % 800);
+      const speed = baseSpeed * (0.85 + (dist / 32) * 0.45);
+
       return {
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
@@ -106,18 +120,20 @@ export function PixelDitherLoader() {
         pixelAudio.playClick();
       }
 
-      // Start scatter after hold
+      // Start explosive scatter after hold
       const isHolding = rawP >= 1.0 && elapsed < totalDuration + holdDuration;
       const isScatter = elapsed >= totalDuration + holdDuration;
 
       if (isScatter && scatterStartTime === null) {
         scatterStartTime = now;
+        // Let the explosion visibly shoot across the screen for 380ms before starting crossfade
         setTimeout(() => {
           finishBoot();
-        }, 180);
+        }, 380);
       }
 
-      const scatterElapsed = scatterStartTime !== null ? (now - scatterStartTime) / 600 : 0;
+      // Elapsed scatter time in seconds (0.0 to ~0.9s)
+      const scatterElapsedSec = scatterStartTime !== null ? (now - scatterStartTime) / 1000 : 0;
 
       // Canvas dimensions and responsive cell scale
       const rect = canvas.getBoundingClientRect();
@@ -133,7 +149,7 @@ export function PixelDitherLoader() {
       ctx.save();
       ctx.scale(dpr, dpr);
 
-      // Clear canvas (clean ivory background)
+      // Clear canvas (deep midnight background)
       ctx.clearRect(0, 0, displayW, displayH);
 
       // Calculate cell scale to center the portrait gracefully
@@ -163,22 +179,33 @@ export function PixelDitherLoader() {
 
         if (isScatter) {
           const vel = velocities[i];
-          const dist = scatterElapsed;
-          x += vel.vx * dist;
-          y += vel.vy * dist;
-          opacity = Math.max(0, 1.0 - scatterElapsed * 1.6);
+          // Supernova impulse curve (fast burst then wide expansion across screen)
+          const travel = Math.pow(scatterElapsedSec, 0.85);
+          x += vel.vx * travel;
+          y += vel.vy * travel;
+          // Smooth fade as embers dissipate
+          opacity = Math.max(0, 1.0 - Math.pow(scatterElapsedSec / 0.85, 1.5));
         }
 
         if (opacity <= 0.02) continue;
 
-        // Draw crisp 1-bit Golden Amber dot (Sunset Twilight Night)
-        ctx.fillStyle = `rgba(250, 204, 21, ${opacity})`;
-        ctx.fillRect(Math.floor(x), Math.floor(y), Math.ceil(dot), Math.ceil(dot));
+        // Ember scale decay during explosion
+        const currentDot = isScatter
+          ? Math.max(1.8, dot * (1.0 - scatterElapsedSec * 0.45))
+          : dot;
+
+        // Detonation core flash (first 100ms)
+        const isFlash = isScatter && scatterElapsedSec < 0.10;
+        ctx.fillStyle = isFlash
+          ? `rgba(255, 252, 214, ${opacity})`
+          : `rgba(250, 204, 21, ${opacity})`;
+
+        ctx.fillRect(Math.floor(x), Math.floor(y), Math.ceil(currentDot), Math.ceil(currentDot));
       }
 
       ctx.restore();
 
-      if (scatterElapsed < 1.0) {
+      if (scatterElapsedSec < 0.9) {
         animFrameId = requestAnimationFrame(render);
       }
     };
