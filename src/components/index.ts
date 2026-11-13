@@ -1,4 +1,11 @@
-export { BackgroundLayer } from "./background-layer";
+export { BackgroundLayer, PixelSkyBackground } from "./pixel-sky-background";
+export { PixelSkyCanvas } from "./pixel-sky-canvas";
+export { PixelCloud } from "./pixel-cloud";
+export { PixelMoon } from "./pixel-moon";
+export { PixelStarfield } from "./pixel-starfield";
+export { PixelHero } from "./pixel-hero";
+export { PixelMascot } from "./pixel-mascot";
+export { PixelDialogBox } from "./pixel-dialog-box";
 export { BlueprintLoader } from "./blueprint-loader";
 export { Navbar } from "./navbar";
 export { HeroDiagram } from "./hero-diagram";

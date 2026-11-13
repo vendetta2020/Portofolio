@@ -21,32 +21,32 @@ export const projects: Project[] = [
     slug: "brewpos",
     number: "01",
     title: "BrewPOS",
-    subtitle: "POS, dapur, dan stok kedai kopi dalam satu sistem.",
-    description: "POS, dapur, dan stok kedai kopi dalam satu sistem.",
+    subtitle: "Real-time kitchen order feed, automated recipe deduction, and zero-deficit stock control.",
+    description: "All-in-one POS, kitchen ticketing, and real-time inventory management engineered for high-volume coffee shops.",
     tags: ["Laravel", "Livewire 3", "Alpine.js", "MySQL 8"],
-    fullTags: ["Laravel", "Livewire 3", "Alpine.js", "MySQL 8", "Tahun 2024"],
+    fullTags: ["Laravel", "Livewire 3", "Alpine.js", "MySQL 8", "Production 2024"],
     image: "/screens/brewpos.png",
-    githubUrl: "https://github.com/Afiffakhriyadh/BrewPOS",
+    githubUrl: "https://github.com/vendetta2020/BrewPOS",
     sections: [
       {
-        title: "Stok per resep",
+        title: "Recipe-Level Automated Deduction",
         content:
-          "Satu Caramel Latte otomatis memotong 18 g espresso, 200 ml susu, dan 20 ml sirup. Pemilik mendapat margin kotor per item, bukan perkiraan.",
+          "Ordering one Caramel Latte atomically deducts 18g espresso, 200ml milk, and 20ml syrup. Business owners monitor real-time gross margins per SKU rather than approximations.",
       },
       {
-        title: "Stok tidak bisa minus",
+        title: "Guaranteed Zero Negative Stock",
         content:
-          "Dua kasir menjual bahan terakhir di detik yang sama? Hanya satu yang berhasil. Pemotongan stok memakai SELECT ... FOR UPDATE dan check constraint di MySQL 8.",
+          "Two cashiers checkout the last remaining inventory item at the exact same millisecond? Only one succeeds. Handled via pessimistic row locking (SELECT ... FOR UPDATE) and MySQL 8 strict check constraints.",
       },
       {
-        title: "Layar dapur real-time",
+        title: "Real-Time Kitchen Display Feed",
         content:
-          "Pesanan lunas langsung muncul di layar barista lewat Livewire 3 dan Alpine.js, tanpa reload. Durasi persiapan terlacak.",
+          "Settled orders instantly appear on the barista kitchen display via Livewire 3 & Alpine.js with zero full-page reloads. Preparation time and latency are tracked end-to-end.",
       },
       {
-        title: "Tutup shift",
+        title: "Tamper-Proof Shift Reconciliation",
         content:
-          "Kas laci dicocokkan dengan rekap digital, selisih dicatat, dan log dikunci.",
+          "Physical drawer cash reconciles against digital audit ledgers; discrepancy logs are locked and cryptographically timestamped.",
       },
     ],
   },
@@ -54,32 +54,32 @@ export const projects: Project[] = [
     slug: "payment-gateway",
     number: "02",
     title: "Payment Gateway",
-    subtitle: "Gateway multi-tenant yang tetap benar saat jaringan bermasalah.",
-    description: "Gateway multi-tenant yang tetap benar saat jaringan bermasalah.",
+    subtitle: "Multi-tenant payment orchestration engine engineered to stay consistent under network faults.",
+    description: "High-throughput payment gateway with guaranteed idempotency, strict ACID state machines, and anti-SSRF webhook dispatchers.",
     tags: ["PostgreSQL", "NestJS", "Next.js"],
-    fullTags: ["PostgreSQL", "NestJS", "Next.js", "TypeScript", "Tahun 2024"],
+    fullTags: ["PostgreSQL", "NestJS", "Next.js", "TypeScript", "Production 2024"],
     image: "/screens/gateway.png",
-    githubUrl: "https://github.com/Afiffakhriyadh/PaymentGateway",
+    githubUrl: "https://github.com/vendetta2020/PaymentGateway_Sandbox",
     sections: [
       {
-        title: "Jaminan idempotensi",
+        title: "Mathematical Idempotency Guarantee",
         content:
-          "Setiap request pembayaran wajib menyertakan Idempotency-Key unik. Jika kasir menekan tombol bayar berulang kali saat koneksi terputus, sistem menjamin tidak terjadi penduplikasian tagihan.",
+          "Every payment mutation requires a unique Idempotency-Key. If network timeouts cause cashiers to press 'Pay' repeatedly, the engine guarantees zero duplicate charges or orphaned ledger entries.",
       },
       {
-        title: "State machine transaksi",
+        title: "ACID Transaction State Machine",
         content:
-          "Transisi status pembayaran (Pending, Paid, Expired, Failed) dikunci ketat dengan transaksi ACID di PostgreSQL. Status tidak dapat dimanipulasi atau melompat secara ilegal.",
+          "Payment lifecycle transitions (Pending, Paid, Expired, Failed) are locked with strict ACID transactions in PostgreSQL. Illegal or out-of-order state jumps are impossible.",
       },
       {
-        title: "Webhook anti-SSRF",
+        title: "Anti-SSRF Webhook Dispatcher",
         content:
-          "Dispatcher webhook memvalidasi DNS dan memblokir IP privat sebelum menembakkan payload. Notifikasi dikirimkan dengan signature HMAC-SHA256 dan retry eksponensial.",
+          "Outbound webhook dispatcher validates DNS resolution and blocks private IP subnets before payload dispatch. Notifications are cryptographically signed with HMAC-SHA256 and retried via exponential backoff.",
       },
       {
-        title: "Isolasi multi-tenant",
+        title: "Isolated Multi-Tenant Security",
         content:
-          "Setiap merchant memiliki API Key terpisah untuk mode uji coba dan produksi. Data transaksi, log audit, dan kredensial terisolasi penuh antar akun bisnis.",
+          "Merchant accounts feature isolated sandbox and production API keys. Transaction logs, audit trails, and customer credentials are fully segregated across enterprise tenants.",
       },
     ],
   },

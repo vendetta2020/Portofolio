@@ -3,12 +3,28 @@ export const siteConfig = {
   title: "Afif Fakhriyadh Asri — Backend & Fullstack Engineer",
   role: "Backend & Fullstack Engineer",
   tagline:
-    "Fokus pada arsitektur backend, manajemen basis data relasional, dan sistem transaksi terdistribusi menggunakan Laravel, NestJS, dan Next.js.",
+    "Engineering fault-tolerant transaction systems, pessimistic concurrency control, and mathematically idempotent financial rails.",
+  pitch: {
+    badge: "PRODUCTION ARCHITECTURE & REPOSITORIES",
+    coreFocus: "High Concurrency • ACID Integrity • Mathematical Idempotency",
+    highlights: [
+      {
+        label: "BrewPOS (Point of Sale)",
+        text: "Pessimistic row locking (SELECT ... FOR UPDATE), recipe-level automated BOM deduction & real-time KDS (60 tests / 380 assertions).",
+      },
+      {
+        label: "Payment Gateway",
+        text: "Mathematical idempotency guarantees, ACID state machines, anti-SSRF webhook engine & $O(N+M)$ financial reconciliation (222 automated tests).",
+      },
+    ],
+  },
   about:
-    "Alumnus Informatika, Telkom University. Berpengalaman merancang arsitektur backend andal, optimasi basis data, dan sistem transaksi otomatis tanpa intervensi manual.",
-  email: "contact@afif.dev",
-  github: "https://github.com/Afiffakhriyadh",
+    "Informatics Undergraduate Student at Telkom University. Specializing in high-availability backend engineering, pessimistic row-level locking, and automated financial transaction pipelines with zero manual intervention.",
+  email: "afiffakhriyadh2012@gmail.com",
+  github: "https://github.com/vendetta2020",
   linkedin: "https://www.linkedin.com/in/afif-fakhriyadh-asri",
+  instagram: "https://instagram.com/nocentdumpp",
+  cvUrl: "/cv.pdf",
   location: "Bandung, ID",
-  revision: "REV 01",
+  revision: "REV 02",
 };

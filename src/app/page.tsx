@@ -1,19 +1,15 @@
 import { BackgroundLayer } from "@/components/background-layer";
-import { BlueprintLoader } from "@/components/blueprint-loader";
 import { Navbar } from "@/components/navbar";
+import { PixelHero } from "@/components/pixel-hero";
 import { HeroDiagram } from "@/components/hero-diagram";
 import { HorizontalKarya } from "@/components/horizontal-karya";
 import { Footer } from "@/components/footer";
 import { projects } from "@/lib/projects";
-import { siteConfig } from "@/lib/site";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen w-full flex flex-col bg-[var(--bp-base)]">
-      {/* Blueprint Opening Downward Animation */}
-      <BlueprintLoader />
-
-      {/* Global Background Blueprint Texture Layer */}
+    <div className="relative min-h-screen w-full flex flex-col bg-transparent">
+      {/* Global Background Sunset Pixel Sky Layer */}
       <BackgroundLayer />
 
       {/* Main Content Layer */}
@@ -23,42 +19,18 @@ export default function Home() {
 
         {/* Hero Section */}
         <main className="flex-1">
-          <section className="pt-12 sm:pt-16 pb-2 sm:pb-4 px-6 max-w-6xl mx-auto w-full space-y-6">
-            
-            {/* Top Label & Headline */}
-            <div className="space-y-4 max-w-4xl">
-              <span className="font-mono text-xs uppercase tracking-widest text-[var(--bp-muted)] block">
-                PORTOFOLIO
-              </span>
+          {/* 16-Bit Pixel Hero (3D Extruded Title, Floating Mascot & Mission Dialog) */}
+          <PixelHero />
 
-              <h1
-                className="text-white tracking-normal leading-[1.08]"
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "clamp(42px, 6.2vw, 92px)",
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                {siteConfig.name}
-              </h1>
-
-              <div className="space-y-2.5 pt-1">
-                <p className="font-mono text-xs sm:text-sm uppercase tracking-wider text-[var(--bp-line)] font-semibold">
-                  {siteConfig.role}
-                </p>
-
-                <p className="text-[17px] text-[var(--bp-line)]/95 leading-relaxed font-sans max-w-2xl">
-                  {siteConfig.tagline}
-                </p>
-              </div>
-            </div>
-
-            {/* Inline SVG Integration Architecture Diagram */}
+          {/* Interactive Backend Architecture Diagram */}
+          <section id="arsitektur" className="py-6 sm:py-10 px-4 sm:px-6 max-w-6xl mx-auto w-full">
             <HeroDiagram />
           </section>
 
           {/* Karya (Horizontal Sticky Roll Showcase) */}
-          <HorizontalKarya projects={projects} />
+          <section id="karya" className="w-full">
+            <HorizontalKarya projects={projects} />
+          </section>
         </main>
 
         {/* Footer */}
