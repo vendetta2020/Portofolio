@@ -171,8 +171,8 @@ export function PixelDitherLoader() {
 
         if (opacity <= 0.02) continue;
 
-        // Draw crisp 1-bit obsidian dot
-        ctx.fillStyle = `rgba(10, 10, 15, ${opacity})`;
+        // Draw crisp 1-bit Golden Amber dot (Sunset Twilight Night)
+        ctx.fillStyle = `rgba(250, 204, 21, ${opacity})`;
         ctx.fillRect(Math.floor(x), Math.floor(y), Math.ceil(dot), Math.ceil(dot));
       }
 
@@ -208,29 +208,41 @@ export function PixelDitherLoader() {
       aria-label="Loading Portrait"
       aria-modal="true"
       onClick={finishBoot}
-      className={`fixed inset-0 z-50 flex flex-col justify-between bg-[#FAFAF9] text-[#0A0A0F] font-mono select-none cursor-pointer overflow-hidden transition-opacity duration-700 ${
+      className={`fixed inset-0 z-50 flex flex-col justify-between bg-[#0B031A] text-[#F8FAFC] font-mono select-none cursor-pointer overflow-hidden transition-opacity duration-700 ${
         isFading ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
       {/* 
+        Subtle Twinkling Background Pixel Stars (Twilight Ambience)
+      */}
+      <div className="absolute inset-0 pointer-events-none opacity-40">
+        <span className="absolute top-[14%] left-[12%] w-1.5 h-1.5 bg-[#FACC15] animate-ping" style={{ animationDuration: "3s" }} />
+        <span className="absolute top-[22%] right-[18%] w-1 h-1 bg-[#F8FAFC] animate-pulse" />
+        <span className="absolute top-[38%] left-[8%] w-1 h-1 bg-[#FACC15] opacity-60" />
+        <span className="absolute top-[65%] right-[10%] w-1.5 h-1.5 bg-[#FEF08A] animate-pulse" style={{ animationDuration: "2.4s" }} />
+        <span className="absolute bottom-[20%] left-[16%] w-1 h-1 bg-[#F8FAFC] opacity-75" />
+        <span className="absolute top-[18%] left-[75%] w-1 h-1 bg-[#FACC15] opacity-50" />
+      </div>
+
+      {/* 
         TOP HEADER BAR
         Minimal typographic framing 
       */}
-      <header className="flex items-center justify-between px-4 sm:px-8 md:px-12 pt-4 sm:pt-6 text-[10px] sm:text-[11px] text-[#71717A] tracking-wider uppercase border-b border-[#E4E4E7]">
+      <header className="relative z-10 flex items-center justify-between px-4 sm:px-8 md:px-12 pt-4 sm:pt-6 text-[10px] sm:text-[11px] text-[#94A3B8] tracking-wider uppercase border-b border-[#261545]">
         <div className="flex items-center gap-2 pb-3">
-          <span className="w-2 h-2 bg-[#0A0A0F] inline-block animate-pulse" />
+          <span className="w-2 h-2 bg-[#FACC15] inline-block animate-pulse shadow-[0_0_8px_#FACC15]" />
           <span
-            className="font-bold text-[#0A0A0F]"
+            className="font-bold text-[#FACC15] tracking-wide"
             style={{ fontFamily: "var(--font-pixel-arcade)" }}
           >
             AFIF.OS // BIOMETRIC POST
           </span>
         </div>
 
-        <div className="hidden sm:flex items-center gap-4 pb-3 text-[#A1A1AA]">
+        <div className="hidden sm:flex items-center gap-4 pb-3 text-[#94A3B8]">
           <span>ALGORITHM: BAYER_8X8</span>
           <span>&bull;</span>
-          <span>DITHER: 1-BIT MONOCHROME</span>
+          <span>DITHER: 1-BIT AMBER</span>
         </div>
       </header>
 
@@ -238,10 +250,10 @@ export function PixelDitherLoader() {
         CENTER CANVAS AREA
         Progressive Pixel Dither Portrait
       */}
-      <main className="relative flex-1 w-full h-full flex items-center justify-center p-2 sm:p-4">
+      <main className="relative z-10 flex-1 w-full h-full flex items-center justify-center p-2 sm:p-4">
         <canvas
           ref={canvasRef}
-          className="w-full h-full max-w-4xl max-h-[75vh] block mx-auto pointer-events-none"
+          className="w-full h-full max-w-4xl max-h-[75vh] block mx-auto pointer-events-none drop-shadow-[0_0_12px_rgba(250,204,21,0.2)]"
           style={{ imageRendering: "pixelated" }}
         />
       </main>
@@ -250,30 +262,30 @@ export function PixelDitherLoader() {
         BOTTOM FOOTER BAR
         Minimal percentage counter in the bottom-left corner (like Hulusi Tunç)
       */}
-      <footer className="flex items-end justify-between px-4 sm:px-8 md:px-12 pl-14 sm:pl-8 pb-5 sm:pb-8 border-t border-[#E4E4E7] pt-4">
+      <footer className="relative z-10 flex items-end justify-between px-4 sm:px-8 md:px-12 pl-14 sm:pl-8 pb-5 sm:pb-8 border-t border-[#261545] pt-4">
         {/* Big Minimalist Percentage Counter */}
         <div className="flex flex-col">
           <div className="flex items-baseline gap-1">
             <span
-              className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#0A0A0F] leading-none"
+              className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#FACC15] leading-none drop-shadow-[0_0_10px_rgba(250,204,21,0.35)]"
               style={{ fontFamily: "var(--font-pixel-arcade)" }}
             >
               {String(percent).padStart(2, "0")}
             </span>
             <span
-              className="text-xs sm:text-sm font-bold text-[#71717A]"
+              className="text-xs sm:text-sm font-bold text-[#FEF08A]/75"
               style={{ fontFamily: "var(--font-pixel-arcade)" }}
             >
               %
             </span>
           </div>
-          <span className="text-[9px] sm:text-[10px] text-[#A1A1AA] uppercase tracking-wider mt-1.5">
+          <span className="text-[9px] sm:text-[10px] text-[#94A3B8] uppercase tracking-wider mt-1.5">
             DECODING AVATAR MATRIX &bull; TELKOM UNIVERSITY
           </span>
         </div>
 
         {/* Skip Affordance */}
-        <div className="text-[9.5px] sm:text-[11px] font-bold text-[#71717A] hover:text-[#0A0A0F] uppercase tracking-wider hover:underline pb-1">
+        <div className="text-[9.5px] sm:text-[11px] font-bold text-[#64748B] hover:text-[#FACC15] uppercase tracking-wider transition-colors pb-1">
           [TAP / ESC TO SKIP]
         </div>
       </footer>
