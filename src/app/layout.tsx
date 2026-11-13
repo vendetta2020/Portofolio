@@ -39,11 +39,35 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isDev = process.env.NODE_ENV === "development";
+
   return (
     <html
       lang="id"
+      suppressHydrationWarning
       className={`${pixelifySans.variable} ${pressStart2P.variable} ${silkscreen.variable} ${jetBrainsMono.variable}`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var isDev = ${isDev ? "true" : "false"};
+                  var forceReplay = window.location.search.indexOf("boot=1") !== -1;
+                  var forceSkip = window.location.search.indexOf("noboot=1") !== -1;
+                  var hasBooted = sessionStorage.getItem("afif_bios_booted");
+                  var prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                  
+                  if (forceSkip || prefersReducedMotion || (!isDev && hasBooted && !forceReplay)) {
+                    document.documentElement.classList.add("bios-skip");
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="antialiased min-h-screen text-[var(--pixel-ink)] font-mono selection:bg-[var(--accent-gold)] selection:text-[var(--pixel-ink)]">
         {/* Retro CRT Scanline Overlay */}
         <CRTOverlay />

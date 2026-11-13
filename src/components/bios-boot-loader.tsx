@@ -11,7 +11,7 @@ interface PostLine {
 
 const BOOT_LINES: PostLine[] = [
   {
-    text: ">> AFIF.OS BIOS v2.4 (C) 2026 // HARDWARE POST CHECK",
+    text: ">> AFIF.OS BIOS v2.4 // POST CHECK",
     badge: "[BOOT]",
     badgeColor: "text-[#38BDF8]",
   },
@@ -53,11 +53,14 @@ const BOOT_LINES: PostLine[] = [
 ];
 
 export function BiosBootLoader() {
-  const [visibleLines, setVisibleLines] = useState<number>(0);
+  // Start with visibleLines = 1 so the BIOS header and terminal are rendered on SSR frame 0
+  const [visibleLines, setVisibleLines] = useState<number>(1);
+  const [isFadingHud, setIsFadingHud] = useState<boolean>(false);
   const [isSplitting, setIsSplitting] = useState<boolean>(false);
-  const [mounted, setMounted] = useState<boolean>(false);
+  const [isDismissed, setIsDismissed] = useState<boolean>(false);
 
   const finishBoot = useCallback(() => {
+    setIsFadingHud(true);
     setIsSplitting((prev) => {
       if (prev) return prev;
       if (typeof window !== "undefined") {
@@ -69,63 +72,63 @@ export function BiosBootLoader() {
       }
       pixelAudio.playBootChime();
 
-      // After curtain split animation completes, unmount completely
+      // After curtain split animation completes (650ms), unmount completely
       setTimeout(() => {
-        setMounted(false);
-      }, 500);
+        setIsDismissed(true);
+      }, 700);
 
       return true;
     });
   }, []);
 
   useEffect(() => {
-    // 1. Check if user already saw the boot sequence in this session
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
-      const forceReplay = urlParams.get("boot") === "1";
-      const forceSkip = urlParams.get("noboot") === "1";
-      const isDev = process.env.NODE_ENV === "development";
-      const hasBooted = sessionStorage.getItem("afif_bios_booted");
-      const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
+    if (typeof window === "undefined") return;
 
-      if (forceSkip || prefersReducedMotion) {
-        return;
-      }
+    // 1. Check if user already saw the boot sequence in this session (or prefers reduced motion)
+    const isSkipped =
+      document.documentElement.classList.contains("bios-skip") ||
+      (window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
-      // In production (Vercel), only show once per tab session.
-      // In development (localhost), allow showing on refresh so you can preview changes immediately.
-      if (!isDev && hasBooted && !forceReplay) {
-        return;
-      }
-
-      setMounted(true);
+    if (isSkipped) {
+      setIsDismissed(true);
+      return;
     }
-  }, []);
 
-  useEffect(() => {
-    if (!mounted) return;
-
-    // Line stepped progression
-    const lineIntervals = [0, 140, 280, 420, 560, 700, 840, 980];
+    // Paced line progression (longer & more readable retro arcade cadence)
+    // Line 1 is already visible from SSR frame 0
+    const lineIntervals = [
+      { line: 2, delay: 280 },
+      { line: 3, delay: 580 },
+      { line: 4, delay: 880 },
+      { line: 5, delay: 1180 },
+      { line: 6, delay: 1480 },
+      { line: 7, delay: 1800 },
+      { line: 8, delay: 2150 },
+    ];
     const timers: NodeJS.Timeout[] = [];
 
-    lineIntervals.forEach((delay, idx) => {
+    lineIntervals.forEach(({ line, delay }) => {
       const timer = setTimeout(() => {
-        setVisibleLines(idx + 1);
+        setVisibleLines(line);
         pixelAudio.playClick();
       }, delay);
       timers.push(timer);
     });
 
-    // Auto finish and split curtain at ~1200ms
+    // Fade out HUD cleanly before parting curtains
+    const fadeTimer = setTimeout(() => {
+      setIsFadingHud(true);
+    }, 2720);
+    timers.push(fadeTimer);
+
+    // Auto finish and split curtain at ~2920ms (giving 570ms to savor "SYSTEM READY")
     const finishTimer = setTimeout(() => {
       finishBoot();
-    }, 1220);
+    }, 2920);
     timers.push(finishTimer);
 
-    // Escape key listener to skip
+    // Escape or Space key listener to skip immediately
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.key === " ") {
         timers.forEach((t) => clearTimeout(t));
@@ -138,12 +141,13 @@ export function BiosBootLoader() {
       timers.forEach((t) => clearTimeout(t));
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [mounted, finishBoot]);
+  }, [finishBoot]);
 
-  if (!mounted) return null;
+  if (isDismissed) return null;
 
   return (
     <div
+      id="bios-boot-overlay"
       role="dialog"
       aria-label="System Initializing"
       aria-modal="true"
@@ -161,7 +165,7 @@ export function BiosBootLoader() {
         style={{
           willChange: "transform",
           transition: isSplitting
-            ? "transform 480ms cubic-bezier(0.16, 1, 0.3, 1)"
+            ? "transform 650ms cubic-bezier(0.16, 1, 0.3, 1)"
             : "none",
         }}
       />
@@ -177,22 +181,21 @@ export function BiosBootLoader() {
         style={{
           willChange: "transform",
           transition: isSplitting
-            ? "transform 480ms cubic-bezier(0.16, 1, 0.3, 1)"
+            ? "transform 650ms cubic-bezier(0.16, 1, 0.3, 1)"
             : "none",
         }}
       />
 
       {/* 
         CENTER TERMINAL HUD CONTENT
-        Positioned fixed in viewport, fades out smoothly as curtains part
+        Positioned fixed in viewport, fades out smoothly before blast doors part
       */}
       <div
-        className={`absolute inset-0 z-10 flex flex-col justify-between p-4 sm:p-8 md:p-12 font-mono pointer-events-auto ${
-          isSplitting ? "opacity-0 pointer-events-none" : "opacity-100"
+        className={`absolute inset-0 z-10 flex flex-col justify-between p-4 sm:p-8 md:p-12 font-mono pointer-events-auto transition-all duration-200 ${
+          isFadingHud
+            ? "opacity-0 scale-[0.98] pointer-events-none"
+            : "opacity-100 scale-100"
         }`}
-        style={{
-          transition: isSplitting ? "opacity 160ms linear" : "none",
-        }}
       >
         {/* Terminal Header Bar */}
         <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-[#64748B] border-b border-[#1E293B] pb-3">
@@ -215,7 +218,7 @@ export function BiosBootLoader() {
 
         {/* Central POST Diagnostics Feed */}
         <div className="max-w-3xl mx-auto w-full my-auto space-y-2 py-4">
-          <div className="bg-[#0B0F19] border-2 border-[#1E293B] shadow-[6px_6px_0px_#000] p-4 sm:p-6 space-y-2 text-[10px] sm:text-[12px] leading-relaxed">
+          <div className="bg-[#0B0F19] border-2 border-[#1E293B] shadow-[6px_6px_0px_#000] p-3 sm:p-6 space-y-2 text-[10px] sm:text-[12px] leading-relaxed">
             {BOOT_LINES.slice(0, visibleLines).map((line, idx) => (
               <div
                 key={idx}
@@ -245,15 +248,15 @@ export function BiosBootLoader() {
         </div>
 
         {/* Terminal Footer Bar with Escape/Click affordance */}
-        <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-[#64748B] border-t border-[#1E293B] pt-3">
-          <div className="flex items-center gap-2 text-[#94A3B8]">
-            <span className="w-1.5 h-1.5 bg-[#FACC15] inline-block" />
-            <span>INITIALIZING HIGH-CONCURRENCY ENVIRONMENT...</span>
+        <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-[#64748B] border-t border-[#1E293B] pt-3 pb-4 sm:pb-0 gap-2">
+          <div className="flex items-center gap-2 text-[#94A3B8] min-w-0">
+            <span className="w-1.5 h-1.5 bg-[#FACC15] inline-block shrink-0" />
+            <span className="truncate">INITIALIZING HIGH-CONCURRENCY ENVIRONMENT...</span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-[#FDE047] font-bold hover:underline cursor-pointer">
-            <span className="text-[10px] sm:text-[11px] uppercase tracking-wider">
-              [CLICK / ESC TO SKIP]
+          <div className="flex items-center gap-1.5 text-[#FDE047] font-bold hover:underline cursor-pointer shrink-0">
+            <span className="text-[9.5px] sm:text-[11px] uppercase tracking-wider">
+              [TAP / ESC TO SKIP]
             </span>
           </div>
         </div>

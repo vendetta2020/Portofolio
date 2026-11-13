@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Zero-FOUC BIOS Bootloader guard for returning visitors */
+html.bios-skip #bios-boot-overlay {
+  display: none !important;
+}
+
 :root {
   /* 16-Bit Sunset Sky Gradient Bands */
   --sky-space-top: #16082f;
