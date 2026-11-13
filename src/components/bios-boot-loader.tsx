@@ -83,13 +83,21 @@ export function BiosBootLoader() {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
       const forceReplay = urlParams.get("boot") === "1";
+      const forceSkip = urlParams.get("noboot") === "1";
+      const isDev = process.env.NODE_ENV === "development";
       const hasBooted = sessionStorage.getItem("afif_bios_booted");
       const prefersReducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)"
       ).matches;
 
-      if ((hasBooted && !forceReplay) || prefersReducedMotion) {
-        return; // Don't show loader
+      if (forceSkip || prefersReducedMotion) {
+        return;
+      }
+
+      // In production (Vercel), only show once per tab session.
+      // In development (localhost), allow showing on refresh so you can preview changes immediately.
+      if (!isDev && hasBooted && !forceReplay) {
+        return;
       }
 
       setMounted(true);
