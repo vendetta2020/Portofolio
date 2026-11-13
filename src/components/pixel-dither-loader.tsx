@@ -28,10 +28,10 @@ export function PixelDitherLoader() {
       }
       pixelAudio.playBootChime();
 
-      // After scatter and fade out completes (650ms), unmount completely
+      // After scatter and fade out completes (950ms), unmount completely
       setTimeout(() => {
         setIsDismissed(true);
-      }, 700);
+      }, 1000);
 
       return true;
     });
@@ -65,9 +65,10 @@ export function PixelDitherLoader() {
 
     let animFrameId: number;
     let startTime: number | null = null;
-    const totalDuration = 2400; // 2.4s to reach 100%
-    const holdDuration = 320; // 320ms hold at 100% before explosive detonation
+    const totalDuration = 3200; // 3.2s to reach 100% (smooth, deliberate assembly)
+    const holdDuration = 450; // 450ms hold at 100% before explosive detonation
     let hasPlayedChime = false;
+    let lastReportedPct = -1;
 
     // Radial explosive scatter physics state
     let scatterStartTime: number | null = null;
@@ -84,13 +85,13 @@ export function PixelDitherLoader() {
       const jitter = ((idx * 7919) % 100) / 100 - 0.5;
       const angle = baseAngle + jitter * 0.75;
 
-      // High-velocity explosion speed in px/sec: 500 to 1400 px/sec across viewport
-      const baseSpeed = 500 + ((idx * 104729) % 800);
-      const speed = baseSpeed * (0.85 + (dist / 32) * 0.45);
+      // Distance-weighted flight distance (650px to 1600px across full screen)
+      const baseDist = 650 + ((idx * 104729) % 950);
+      const targetDist = baseDist * (0.85 + (dist / 32) * 0.5);
 
       return {
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
+        dx: Math.cos(angle) * targetDist,
+        dy: Math.sin(angle) * targetDist,
       };
     });
 
@@ -100,16 +101,18 @@ export function PixelDitherLoader() {
       if (!startTime) startTime = now;
       const elapsed = now - startTime;
 
-      // Calculate progress (0.0 to 1.0)
+      // Calculate progress (0.0 to 1.0) with smooth Hermite/cubic deceleration
       const rawP = Math.min(1.0, elapsed / totalDuration);
-      // Ease out slightly for natural deceleration into 100%
-      const p = Math.min(1.0, 1 - Math.pow(1 - rawP, 1.4));
+      const p = Math.min(1.0, 1 - Math.pow(1 - rawP, 2.2));
       const currentPct = Math.min(100, Math.floor(p * 100));
 
-      setPercent(currentPct);
+      if (currentPct !== lastReportedPct) {
+        lastReportedPct = currentPct;
+        setPercent(currentPct);
+      }
 
-      // Sound click cadence every ~15%
-      if (currentPct - lastSoundPercent >= 14 && currentPct < 100) {
+      // Rhythmic sound click cadence every ~10%
+      if (currentPct - lastSoundPercent >= 10 && currentPct < 100) {
         pixelAudio.playClick();
         lastSoundPercent = currentPct;
       }
@@ -126,13 +129,13 @@ export function PixelDitherLoader() {
 
       if (isScatter && scatterStartTime === null) {
         scatterStartTime = now;
-        // Let the explosion visibly shoot across the screen for 380ms before starting crossfade
+        // Let the explosion visibly shoot across the screen for 480ms before starting crossfade
         setTimeout(() => {
           finishBoot();
-        }, 380);
+        }, 480);
       }
 
-      // Elapsed scatter time in seconds (0.0 to ~0.9s)
+      // Elapsed scatter time in seconds (0.0 to ~1.2s)
       const scatterElapsedSec = scatterStartTime !== null ? (now - scatterStartTime) / 1000 : 0;
 
       // Canvas dimensions and responsive cell scale
@@ -179,33 +182,36 @@ export function PixelDitherLoader() {
 
         if (isScatter) {
           const vel = velocities[i];
-          // Supernova impulse curve (fast burst then wide expansion across screen)
-          const travel = Math.pow(scatterElapsedSec, 0.85);
-          x += vel.vx * travel;
-          y += vel.vy * travel;
-          // Smooth fade as embers dissipate
-          opacity = Math.max(0, 1.0 - Math.pow(scatterElapsedSec / 0.85, 1.5));
+          // Silky aerodynamic deceleration curve
+          const travel = 1 - Math.exp(-scatterElapsedSec * 3.6);
+          x += vel.dx * travel;
+          y += vel.dy * travel;
+          // Smooth fade as embers dissipate into the night sky
+          opacity = Math.max(0, 1.0 - Math.pow(scatterElapsedSec / 1.1, 1.4));
         }
 
         if (opacity <= 0.02) continue;
 
         // Ember scale decay during explosion
         const currentDot = isScatter
-          ? Math.max(1.8, dot * (1.0 - scatterElapsedSec * 0.45))
+          ? Math.max(1.6, dot * (1.0 - scatterElapsedSec * 0.40))
           : dot;
 
-        // Detonation core flash (first 100ms)
-        const isFlash = isScatter && scatterElapsedSec < 0.10;
+        // Detonation core flash (first 120ms)
+        const isFlash = isScatter && scatterElapsedSec < 0.12;
         ctx.fillStyle = isFlash
-          ? `rgba(255, 252, 214, ${opacity})`
+          ? `rgba(255, 252, 220, ${opacity})`
           : `rgba(250, 204, 21, ${opacity})`;
 
-        ctx.fillRect(Math.floor(x), Math.floor(y), Math.ceil(currentDot), Math.ceil(currentDot));
+        // Snap to pixel grid during assembly; subpixel anti-aliased motion during high-speed explosion
+        const px = isScatter ? x : Math.floor(x);
+        const py = isScatter ? y : Math.floor(y);
+        ctx.fillRect(px, py, currentDot, currentDot);
       }
 
       ctx.restore();
 
-      if (scatterElapsedSec < 0.9) {
+      if (scatterElapsedSec < 1.15) {
         animFrameId = requestAnimationFrame(render);
       }
     };
@@ -235,7 +241,7 @@ export function PixelDitherLoader() {
       aria-label="Loading Portrait"
       aria-modal="true"
       onClick={finishBoot}
-      className={`fixed inset-0 z-50 flex flex-col justify-between bg-[#0B031A] text-[#F8FAFC] font-mono select-none cursor-pointer overflow-hidden transition-opacity duration-700 ${
+      className={`fixed inset-0 z-50 flex flex-col justify-between bg-[#0B031A] text-[#F8FAFC] font-mono select-none cursor-pointer overflow-hidden transition-opacity duration-1000 ease-in-out ${
         isFading ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
